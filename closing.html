@@ -142,7 +142,10 @@ function processThreads(token, threads) {
         }
     }
 
-    alertUser(token, hits);
+    // Avoid sending empty messages
+    if (hits.length) {
+        alertUser(token, hits);
+    }
 }
 
 /******************************************************************************
@@ -179,6 +182,10 @@ function alertUser(token, threads) {
     });
 }
 </code></pre>
+
+                    <p>And here's what it looks like when I tell the bot to look for all topics related to "Javascript" on the webdev subreddit:</p>
+
+                    <img src="message.jpg">
 
                     <p>Note that this is a very simple bot not suited for "production", although it should be clear how to make such a bot if you wanted to go further from here.</p>
 
