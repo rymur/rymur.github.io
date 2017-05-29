@@ -105,14 +105,14 @@ request(options, function(err, res, body) {
 
                     <p>To actually send the request and process the response we call the request object and provide our options object as the first argument. The second argument is a callback that takes the response, error, and body of the response. We only care about the body which will be returned to us in JSON format.</p>
 
-                    <pre><code class="json">
-                    {
-                        "access_token": Your access token,
-                        "token_type": "bearer",
-                        "expires_in": Unix Epoch Seconds,
-                        "scope": A scope string,
-                    }
-                    </code></pre>
+<pre><code class="json">
+{
+    "access_token": Your access token,
+    "token_type": "bearer",
+    "expires_in": Unix Epoch Seconds,
+    "scope": A scope string,
+}
+</code></pre>
 
                     <p>Save the access token and we’re done! Now we can access the OAuth-only API calls. Note that the access token expires after one hour, so you’ll need to refresh it if your app’s session goes any longer than that. This is accomplished by including the string</p>
 

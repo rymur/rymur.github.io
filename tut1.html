@@ -48,20 +48,20 @@
 
                     Let's look at the details of the user account we're logged in as. To do this we'll hit the <strong><em>api/v1/me</em></strong> endpoint. This is a very simple endpoint that requires nothing more than sending a GET request to the URL while logged in. Remember, the base URL for all Reddit API requests is "oauth.reddit.com" and we want JSON data back which means the full URL of the endpoint is "https://oauth.reddit.com/api/v1/me.json". So our request for this endpoint looks like:</p>
 
-                    <pre><code class="javascript">
-                    options = {
-                            url: "https://oauth.reddit.com/api/v1/me.json",
-                            method: 'GET',
-                            headers: {
-                                'User-Agent': 'YOUR_USER_AGENT',
-                                'Authorization': ‘bearer TOKEN’
-                    }
+<pre><code class="javascript">
+options = {
+        url: "https://oauth.reddit.com/api/v1/me.json",
+        method: 'GET',
+        headers: {
+            'User-Agent': 'YOUR_USER_AGENT',
+            'Authorization': ‘bearer TOKEN’
+}
 
-                    request(options, function(err, res, body) {
-                        var acctData = JSON.parse(body);
-                        /* Do something with the account data */
-                    });
-                    </code></pre>
+request(options, function(err, res, body) {
+    var acctData = JSON.parse(body);
+    /* Do something with the account data */
+});
+</code></pre>
 
                     Easy! Now let's do something more interesting.
 
@@ -92,18 +92,18 @@
 
                     <p>Of course, we want to examine more than just one thread, we want to look at all the new threads. So to do that we’ll loop over the JSON data and put it into a dictionary:</p>
 
-                    <pre><code class="javascript">
-                    var rawThreadData = json['data']['children'];
-                    var threads = [];
+<pre><code class="javascript">
+var rawThreadData = json['data']['children'];
+var threads = [];
 
-                    for (thread in rawThreadData) {
-                        var curThread = {};
-                        curThread['title'] = rawThreadData[thread]['data']['title'];
-                        curThread['fullname'] = rawThreadData[thread]['data']['name'];
-                        curThread['link'] = rawThreadData[thread]['data']['permalink'];
-                        threads.push(curThread);
-                    }
-                    </code></pre>
+for (thread in rawThreadData) {
+    var curThread = {};
+    curThread['title'] = rawThreadData[thread]['data']['title'];
+    curThread['fullname'] = rawThreadData[thread]['data']['name'];
+    curThread['link'] = rawThreadData[thread]['data']['permalink'];
+    threads.push(curThread);
+}
+</code></pre>
 
                     <p>Now we’re getting results back, but if we repeat the query we’re going to get a lot of stuff we’ve already seen back. The solution is to attach the “before” parameter to our GET request. We want to use the “before” parameter instead of “after” because we only want threads that we haven’t seen yet; if we used “after” we’d keep going backward through all threads that show up under “new”. With the Reddit API parameters are sent by attaching them to the URL. For example:</p>
                     <br>
@@ -113,38 +113,38 @@
 
                     <p>At this point we can let our code repeat infinitely so that we’re always monitoring for new threads. However, we have to be careful. If we just let the program execute at its own pace it will violate the API’s rules about how often we’re allowed to query the API. Therefore, we have to tell our bot to wait at least a second between queries. To accomplish this we’ll use the timeout function which will take our calling function as a callback.</p>
 
-                    <pre><code class="javascript">
-                    setTimeout(function() {
-                        getThreads(token, before, limit);
-                    }, 60000);
-                    </code></pre>
+<pre><code class="javascript">
+setTimeout(function() {
+    getThreads(token, before, limit);
+}, 60000);
+</code></pre>
 
                     <p>The above code assumes that we've wrapped all the code so far into its own function "getThreads" which takes the authentication token as an argument along with the thread we should use as our starting point to look for new threads, and the amount of threads we want to get back. We've set the timeout to one minute because on most subreddits it's unlikely that new threads will have been posted faster than that.</p>
 
                     <p>We still have to actually do something with these threads we’ve collected though. Namely, we need to parse them to look for a search term and then only keep those threads that match. We’ll make another function for this:</p>
 
-                    <pre><code class="javascript">
-                    function processThreads(token, threads) {
-                        var searchTerm = "YOUR_SEARCH_TERM";
-                        var re = new RegExp(searchTerm, 'i');
-                        var hits = [];
+<pre><code class="javascript">
+function processThreads(token, threads) {
+    var searchTerm = "YOUR_SEARCH_TERM";
+    var re = new RegExp(searchTerm, 'i');
+    var hits = [];
 
-                        for (thread in threads) {
-                            if (re.test(threads[thread]['title'])) {
-                                var hit = {};
-                                hit['title'] = threads[thread]['title']; 
-                                hit['link'] = threads[thread]['link'];
-                                hits.push(hit);
-                            }
-                        }
+    for (thread in threads) {
+        if (re.test(threads[thread]['title'])) {
+            var hit = {};
+            hit['title'] = threads[thread]['title']; 
+            hit['link'] = threads[thread]['link'];
+            hits.push(hit);
+        }
+    }
 
-                        if (hits.length) {
-                            console.log("Got " + hits.length + " hits");
-                        } else {
-                            console.log("No hits");
-                        }
-                    }
-                    </code></pre>
+    if (hits.length) {
+        console.log("Got " + hits.length + " hits");
+    } else {
+        console.log("No hits");
+    }
+}
+</code></pre>
 
                     <p>Going over this code very quickly, we use a regular expression to look for our term. If we get a hit, we add the title and link of the thread to a dictionary which is then added to an array.</p>
 

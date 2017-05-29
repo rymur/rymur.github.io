@@ -59,36 +59,36 @@
 
                     <p>Now let's see this call in action</p>
 
-                    <pre><code class="javascript">
-                    function alertUser(token, threads) {
-                        var subject = "New threads matching your query have been posted";
-                        var to = "RECIPIENT_USER";
-                        // Construct message with markdown
-                        var message = "";
-                        for (thread in threads) {
-                            message += "* [" + threads[thread]['title']+ "](" + threads[thread]['link']+ ")\n";
-                        }
+<pre><code class="javascript">
+function alertUser(token, threads) {
+    var subject = "New threads matching your query have been posted";
+    var to = "RECIPIENT_USER";
+    // Construct message with markdown
+    var message = "";
+    for (thread in threads) {
+        message += "* [" + threads[thread]['title']+ "](" + threads[thread]['link']+ ")\n";
+    }
 
-                        var builtURL = "https://oauth.reddit.com/api/compose";
-                        builtURL += "?api_type=json&subject=" + subject + "&to=" + to + "&text=" + message;
+    var builtURL = "https://oauth.reddit.com/api/compose";
+    builtURL += "?api_type=json&subject=" + subject + "&to=" + to + "&text=" + message;
 
-                        var options = {
-                                        url: builtURL,
-                                        method: 'POST',
-                                        contentType: 'application/json',
-                                        headers: {
-                                            'User-Agent': YOUR_USER_AGENT,
-                                            'Authorization': 'bearer ' + token
-                                        },
-                                        body: "" 
-                                     };
+    var options = {
+                    url: builtURL,
+                    method: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'User-Agent': YOUR_USER_AGENT,
+                        'Authorization': 'bearer ' + token
+                    },
+                    body: "" 
+                 };
 
-                        console.log("Trying to send request...");
-                        request(options, function(err, res, body) {
-                            // You can check for errors and success here
-                        });
-                    }
-                    </code></pre>
+    console.log("Trying to send request...");
+    request(options, function(err, res, body) {
+        // You can check for errors and success here
+    });
+}
+</code></pre>
 
                     <p>Walking through this code, we first set our subject to a standard subject line and set our recipient. Then we construct the message body using the array of processed thread data we created earlier along with a little markdown for prettier formatting. Next, we create the URL using the above pieces. Finally, we POST our request to send the message.</p>
 
