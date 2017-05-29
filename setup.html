@@ -45,6 +45,8 @@
 
                     <p>The first thing we have to do is register our client with Reddit. To do this first log into your Reddit account. Since your account will be tied to this app you may instead wish to create an account for the bot we'll be writing instead. Once you're logged in go <a href="https://www.reddit.com/prefs/apps">here</a> and fill out the form to register your app. Most of the information presented is for developers making a web app or mobile app. Since we're building a bot we only need it to run on one machine, like a server. Fill our your form like so:</p>
 
+                    <img src="regiform.jpg">
+
                     <p class="listblock">
                         <strong>Name</strong>: The name of your application (use something unique).
                         <br>
@@ -58,6 +60,8 @@
                     </p>
 
                     <p>Once you’ve created your application you’ll be redirected to a page that summarizes the app’s information. There are two new fields we’re interested in, the client ID and the secret key. The client ID is in the top left corner under your app’s name. The secret key is the string following the label “secret”. Save both of these for later, you’ll need them to authenticate with later.</p>
+
+                    <img src="finalform.jpg">
 
                     <h2>Authentication</h2>
 
@@ -101,7 +105,7 @@ request(options, function(err, res, body) {
 
                     <p>The “auth” option tells the request module to use HTTP basic authentication. For the Reddit API, the “username” is your client_id and the “password” is your client_secret. Finally, we set the content of our POST request with the “body” option. This is where you can choose between application or user authentication. If you wish to use application authentication then all you need to put is “grant_type=client_credentials”. If you wish to use user authentication, you’ll need to include the user’s username and password, and set grant_type to “password”. So the body for this would look like </p>
 
-                    <pre><code class="xml">'grant_type=password&username=YOUR_USERNAME&password=YOUR_PASSWORD'</code></pre>
+<pre><code class="xml">'grant_type=password&username=YOUR_USERNAME&password=YOUR_PASSWORD'</code></pre>
 
                     <p>To actually send the request and process the response we call the request object and provide our options object as the first argument. The second argument is a callback that takes the response, error, and body of the response. We only care about the body which will be returned to us in JSON format.</p>
 
@@ -116,7 +120,7 @@ request(options, function(err, res, body) {
 
                     <p>Save the access token and we’re done! Now we can access the OAuth-only API calls. Note that the access token expires after one hour, so you’ll need to refresh it if your app’s session goes any longer than that. This is accomplished by including the string</p>
 
-                    <pre><code class="xml">grant_type=refresh_token&refresh_token=TOKEN</code></pre>
+<pre><code class="xml">grant_type=refresh_token&refresh_token=TOKEN</code></pre>
 
                     <p>In your POST data. You also need to include “duration=permanent” in your original authorization request.</p>
 
