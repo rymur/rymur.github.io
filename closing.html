@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ title }}</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/monokai.min.css">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <!-- Navbar code borrowed heavily from https://getbootstrap.com/components/#navbar -->
+        <nav class="navbar navbar-inverse">
+            <div class="container">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            </button>
+                        <a class="navbar-brand" href="/">Reddit API How-To</a>
+                    </div>
+                    <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li id="intro"><a href="/intro">Intro</a></li>
+                        <li id="overview"><a href="/overview">Overview</a></li>
+                        <li id="setup"><a href="/setup">Setup</a></li>
+                        <li id="tut1"><a href="/tut1">Tutorial Part I</a></li>
+                        <li id="tut2"><a href="/tut2">Tutorial Part II</a></li>
+                        <li id="closing"><a href="/closing">Closing</a></li>
+                    </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <h1>Closing Remarks</h1>
+
+                    <p>You should now have a fairly good idea of how to use the Reddit API. While we've only gone over a fraction of the available methods, the concepts seen in the API methods we covered are widely applicable to the rest of the API and should allow you to use it without much trouble. Fetching user accounts, writing posts, fetching posts, and other functionality all have calls very similar to those covered.</p>
+
+                    <p>As for our bot, here's what it looks like with everything put together:</p>
+
+                    <pre><code class="javascript">
+                    var request = require("request");
+
+                    var clientid = YOUR_CLIENT_ID;
+                    var secret = YOUR_SECRET;
+                    var options = {
+                                    url: "https://www.reddit.com/api/v1/access_token",
+                                    method: 'POST',
+                                    contentType: 'application/x-www-form-urlencoded',
+                                    headers: {
+                                        'User-Agent': 'YOUR_USER_AGENT'
+                                    },
+                                    auth: {
+                                        'username': clientid,
+                                        'password': secret
+                                    },
+                                    body: 'grant_type=password&username=YOUR_USERNAME&password=YOUR_PASSWORD',
+                                 };
+
+                    request(options, function(err, res, body) {
+                        var json = JSON.parse(body);
+                        var token = json['access_token'];
+                        getThreads(token);
+                    });
+
+                    /****************************************************************************
+                     * Fetches and parses the top LIMIT threads from a subreddit
+                     * token: the authentication token
+                     * before: the thread ID to start from
+                     * limit: the maximum number of threads to fetch
+                     ***************************************************************************/
+                    function getThreads(token, before = null, limit = 10) {
+                        var authHeader = 'bearer ' + token;
+                        var builtURL = "https://reddit.com/r/politics/new.json";
+                        builtURL += "?limit=" + limit;
+                        if (before) {
+                            builtURL += "&before=" + before;
+                        }
+                        
+                        options = {
+                            url: builtURL,
+                            method: 'GET',
+                            //contentType: 'application/x-www-form-urlencoded',
+                            headers: {
+                                'User-Agent': 'YOUR_USER_AGENT',
+                                'Authorization': authHeader
+                            }
+                        }
+
+                        request(options, function(err, res, body) {
+                            json = JSON.parse(body);
+                            var rawThreadData = json['data']['children'];
+                            var threads = [];
+
+                            for (thread in rawThreadData) {
+                                var curThread = {};
+                                curThread['title'] = rawThreadData[thread]['data']['title'];
+                                curThread['fullname'] = rawThreadData[thread]['data']['name'];
+                                curThread['link'] = rawThreadData[thread]['data']['permalink'];
+                                threads.push(curThread);
+                            }
+
+                            console.log("Fetched " + threads.length + " theads");
+
+                            processThreads(token, threads);
+
+                            if (threads.length) {
+                                before = threads[0]['fullname'];
+                            }
+                            // Throttle requests to avoid breaking API rules
+                            setTimeout(function() {
+                                getThreads(token, before, limit);
+                            }, 60000);
+                        });
+                    }
+
+
+                    /*****************************************************************************
+                     * Prases threads for matching search terms and then sends it off to be sent 
+                     * to a user.
+                     * token: the authentication token
+                     * threads: an array of dictionaries each containing titles, fullnames, and 
+                     *          links of a thread
+                     ****************************************************************************/
+                    function processThreads(token, threads) {
+                        var searchTerm = "YOUR_SEARCH_TERM";
+                        var re = new RegExp(searchTerm, 'i');
+                        var hits = [];
+
+                        for (thread in threads) {
+                            if (re.test(threads[thread]['title'])) {
+                                var hit = {};
+                                hit['title'] = threads[thread]['title']; 
+                                hit['link'] = threads[thread]['link'];
+                                hits.push(hit);
+                            }
+                        }
+
+                        alertUser(token, hits);
+                    }
+
+                    /******************************************************************************
+                     * Sends a PM to a user
+                     * token - the authentication token
+                     * threads - a dictionary of threads
+                     *****************************************************************************/
+                    function alertUser(token, threads) {
+                        var subject = "New threads matching your query have been posted";
+                        var to = "YOUR_RECIPIENT"
+                        // Construct message with markdown
+                        var message = "";
+                        for (thread in threads) {
+                            message += "* [" + threads[thread]['title']+ "](" + threads[thread]['link']+ ")\n";
+                        }
+
+                        var builtURL = "https://oauth.reddit.com/api/compose";
+                        builtURL += "?api_type=json&subject=" + subject + "&to=" + to + "&text=" + message;
+
+                        var options = {
+                                        url: builtURL,
+                                        method: 'POST',
+                                        contentType: 'application/json',
+                                        headers: {
+                                            'User-Agent': 'YOUR_USER_AGENT',
+                                            'Authorization': 'bearer ' + token
+                                        },
+                                        body: "" 
+                                     };
+
+                        console.log("Trying to send request...");
+                        request(options, function(err, res, body) {
+                            // check for errors
+                        });
+                    }
+                    </code></pre>
+
+                    <p>Note that this is a very simple bot not suited for "production", although it should be clear how to make such a bot if you wanted to go further from here.</p>
+
+                    <p>Thanks for reading!</p>
+
+                    <div class="center">
+                        <a href="/tut2"><button type="button" class="btn btn-primary">Previous</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <div class="container">Created by: Ryan Murray</div>
+        </footer>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+</html>

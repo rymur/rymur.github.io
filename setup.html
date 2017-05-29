@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Reddit API How-To - Setup</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/monokai.min.css">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <!-- Navbar code borrowed heavily from https://getbootstrap.com/components/#navbar -->
+        <nav class="navbar navbar-inverse">
+            <div class="container">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            </button>
+                        <a class="navbar-brand" href="/">Reddit API How-To</a>
+                    </div>
+                    <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li id="intro"><a href="/intro">Intro</a></li>
+                        <li id="overview"><a href="/overview">Overview</a></li>
+                        <li id="setup" class="active"><a href="/setup">Setup</a></li>
+                        <li id="tut1"><a href="/tut1">Tutorial Part I</a></li>
+                        <li id="tut2"><a href="/tut2">Tutorial Part II</a></li>
+                        <li id="closing"><a href="/closing">Closing</a></li>
+                    </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <h1>Setting Up the API</h1>
+                    <p>There are several steps we need to perform before we can start using the Reddit API.</p>
+
+                    <h2>Register the app</h2>
+
+                    <p>The first thing we have to do is register our client with Reddit. To do this first log into your Reddit account. Since your account will be tied to this app you may instead wish to create an account for the bot we'll be writing instead. Once you're logged in go <a href="https://www.reddit.com/prefs/apps">here</a> and fill out the form to register your app. Most of the information presented is for developers making a web app or mobile app. Since we're building a bot we only need it to run on one machine, like a server. Fill our your form like so:</p>
+
+                    <p class="listblock">
+                        <strong>Name</strong>: The name of your application (use something unique).
+                        <br>
+                        <strong>App type</strong>: There are only three options presented as radio buttons. Select "script".
+                        <br>
+                        <strong>Description</strong>: Your app's description. You can leave this blank.
+                        <br>
+                        <strong>About URL</strong>: Leave this blank.
+                        <br>
+                        <strong>Redirect URI</strong>: The URI that the client will redirect to when authenticating the user. Since local scripts don't need to authenticate users you can leave this blank.
+                    </p>
+
+                    <p>Once you’ve created your application you’ll be redirected to a page that summarizes the app’s information. There are two new fields we’re interested in, the client ID and the secret key. The client ID is in the top left corner under your app’s name. The secret key is the string following the label “secret”. Save both of these for later, you’ll need them to authenticate with later.</p>
+
+                    <h2>Authentication</h2>
+
+                    <p>Reddit's authentication documentation can be found <a href="https://github.com/reddit/reddit/wiki/OAuth2">here</a>. However, there are several methods to authenticate depending on what you want to do and they are not simple. In fact, the authentication methods are API calls themselves, and they are by far the hardest part of using the Reddit API. There aren't many good resources out there on getting past this hurdle, so I'll walk through the steps.</p>
+
+                    <p>For our purposes (making a local script) there are two relevant options depending on what we want to do. We can either log in as ourselves and have access to all OAuth calls that require a user to be logged in, or just authenticate the app without logging in. Both will give you access to OAuth-required API calls, but only the log in option will allow you to access API calls that perform user-specific options (e.g., posting comments, viewing account details). To get full access to the API we'll authenticate with our account.</p>
+
+                    <p>Using Node and the requests module, the code to authenticate will look like:</p>
+
+                    <pre><code class="javascript">
+                    var request = require("request");
+
+                    var clientid = YOUR_CLIENT_ID;
+                    var secret = YOUR_CLIENT_SECRET;
+                    var options = {
+                                    url: "https://www.reddit.com/api/v1/access_token",
+                                    method: 'POST',
+                                    contentType: 'application/x-www-form-urlencoded',
+                                    headers: {
+                                        'User-Agent': YOUR_USER_AGENT
+                                    },
+                                    auth: {
+                                        'username': clientid,
+                                        'password': secret
+                                    },
+                                    body: 'grant_type=password&username=YOUR_USERNAME&password=YOUR_PASSWORD',
+                                 };
+
+                    request(options, function(err, res, body) {
+                        var json = JSON.parse(body);
+                        var token = json['access_token'];
+                        getThreads(token);
+                    });
+                    </code></pre>
+
+                    <p>Let’s go through this line by line. The URL field specifies which API endpoint we need to hit, in this case </p>
+
+                    <p>First we set variables for our client ID and secret that we obtained earlier when we registered out app. It’s not necessary to do this, but it makes it easier to hide or change later. Remember, we don’t want our client secret getting out!</p>
+
+                    <p>Next, we configure all the options we’ll need to make our request. The URL field specifies which API endpoint we need to hit, in this case "https://www.reddit.com/api/v1/access_token". The method field specifies what kind of request to make. The Reddit API says we have to make a POST request. Content-Type needs to be set to “application/x-www-form-urlencoded” according to the API. In the header field we’ll specify our user-agent. As stated earlier, this can be any unique string you want.</p>
+
+                    <p>The “auth” option tells the request module to use HTTP basic authentication. For the Reddit API, the “username” is your client_id and the “password” is your client_secret. Finally, we set the content of our POST request with the “body” option. This is where you can choose between application or user authentication. If you wish to use application authentication then all you need to put is “grant_type=client_credentials”. If you wish to use user authentication, you’ll need to include the user’s username and password, and set grant_type to “password”. So the body for this would look like </p>
+
+                    <pre><code class="xml">'grant_type=password&username=YOUR_USERNAME&password=YOUR_PASSWORD'</code></pre>
+
+                    <p>To actually send the request and process the response we call the request object and provide our options object as the first argument. The second argument is a callback that takes the response, error, and body of the response. We only care about the body which will be returned to us in JSON format.</p>
+
+                    <pre><code class="json">
+                    {
+                        "access_token": Your access token,
+                        "token_type": "bearer",
+                        "expires_in": Unix Epoch Seconds,
+                        "scope": A scope string,
+                    }
+                    </code></pre>
+
+                    <p>Save the access token and we’re done! Now we can access the OAuth-only API calls. Note that the access token expires after one hour, so you’ll need to refresh it if your app’s session goes any longer than that. This is accomplished by including the string</p>
+
+                    <pre><code class="xml">grant_type=refresh_token&refresh_token=TOKEN</code></pre>
+
+                    <p>In your POST data. You also need to include “duration=permanent” in your original authorization request.</p>
+
+                    <div class="center">
+                        <a href="/overview"><button type="button" class="btn btn-primary">Previous</button></a>
+                        <a href="/tut1"><button type="button" class="btn btn-primary">Next</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <div class="container">Created by: Ryan Murray</div>
+        </footer>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+</html>
+
+

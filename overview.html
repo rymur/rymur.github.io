@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="utf-8">
+        <title>Reddit API How-To - Overview</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/monokai.min.css">
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<!-- Navbar code borrowed heavily from https://getbootstrap.com/components/#navbar -->
+		<nav class="navbar navbar-inverse">
+			<div class="container">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false">
+					        <span class="sr-only">Toggle navigation</span>
+					        <span class="icon-bar"></span>
+					        <span class="icon-bar"></span>
+					        <span class="icon-bar"></span>
+					        </button>
+	  			        <a class="navbar-brand" href="/">Reddit API How-To</a>
+					</div>
+					<div class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li id="intro"><a href="/intro">Intro</a></li>
+						<li id="overview" class="active"><a href="/overview">Overview</a></li>
+						<li id="setup"><a href="/setup">Setup</a></li>
+						<li id="tut1"><a href="/tut1">Tutorial Part I</a></li>
+						<li id="tut2"><a href="/tut2">Tutorial Part II</a></li>
+						<li id="closing"><a href="/closing">Closing</a></li>
+					</ul>
+					</div>
+				</div>
+			</div>
+		</nav>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+                    <h1>Overview</h1>
+
+					<p>There are a few things to know about the Reddit API before we get started.</p>
+
+					<div class="center">
+					    <a href="https://www.reddit.com/dev/api/"><button type="button" class="btn btn-primary">View the Reddit API Documentation</button></a>
+					</div>
+
+					<h2>Rules</h2>
+
+					<ol>
+						<li>Clients must authenticate with OAuth2 to use the API</li>
+						<li>Clients can make a maximum of 60 requests per minute</li>
+						<li>Apps must identify themselves with a unique user-agent including app name, version number, target platform, and username.</li>
+						<li>Do <strong>not</strong> use a fake user agent or the app may get banned.</li>
+					</ol>
+
+					<h2>Working with parameters</h2>
+					<p>In the Reddit API all call parameters are sent as query parameters in the URL, even for calls that use an HTTP method other than GET (most notably POST). The only API calls where this isn't true are those used for authentication.</p>
+
+					<h2>Getting back data</h2>
+					<p>Data is sent back in XML format by default. To change it to JSON format you add the ".json" specifier at the end of the URL or, if the API call has a JSON parameter, set that parameter instead.</p>
+
+					<h3>Listings and things</h3>
+					<p>Many of Reddit's API methods return either a "listing" or a "thing". Listings, as the name suggests, are lists of objects (a list of threads or a thread's comments, for example). When requesting a listing you specify which part of a list of items you want with a set of common parameters we'll discuss later that allow you to slice the listing using a known element as a reference, limit the amount of elements you get back, use a count of threads you've seen instead, and get all listings even if you've chosen some to be hidden.</p>
+
+					<p>A "thing" is basically an object. There are several different types of "things" that Reddit can return. Examples include comments and accounts which have large data structures associated with them. You can view the documentation for things <a href="https://github.com/reddit/reddit/wiki/JSON">at the Reddit wiki</a>.</p>
+
+					<h2>Fullnames</h2>
+
+					<p>A lot of the API methods use "fullnames" to identify posts, comments, and more. Think of them as IDs. Fullnames consist of a base-36 string called a "name" and a type identifer. You can view the details in the API documentation. You'll be working with fullnames a lot so it's good to know what they are now.</p>
+
+					<div class="center">
+					    <a href="/intro"><button type="button" class="btn btn-primary">Prev</button></a>
+					    <a href="/setup"><button type="button" class="btn btn-primary">Next</button></a>
+					</div>
+				</div>
+			</div>
+		</div>
+        <footer>
+            <div class="container">Created by: Ryan Murray</div>
+        </footer>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>

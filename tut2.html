@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Reddit API How-To - Tutorial Part II</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/monokai.min.css">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <!-- Navbar code borrowed heavily from https://getbootstrap.com/components/#navbar -->
+        <nav class="navbar navbar-inverse">
+            <div class="container">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            </button>
+                        <a class="navbar-brand" href="/">Reddit API How-To</a>
+                    </div>
+                    <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li id="intro"><a href="/intro">Intro</a></li>
+                        <li id="overview"><a href="/overview">Overview</a></li>
+                        <li id="setup"><a href="/setup">Setup</a></li>
+                        <li id="tut1"><a href="/tut1">Tutorial Part I</a></li>
+                        <li id="tut2" class="active"><a href="/tut2">Tutorial Part II</a></li>
+                        <li id="closing"><a href="/closing">Closing</a></li>
+                    </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <h1>Making the Bot - Part II</h1>
+
+                    <p>On the last page we fetched the newest threads from a chosen subreddit, parsed them for relevant data, and filtered for the threads that matched an arbitrary search term. Now it's time to do something with that data. Since our bot is supposed to alert users to new threads that match their interests, we should obviously do something to alert them. Since our bot is server-side we could just send the user an email or text, but we can also alert users without leaving Reddit. We can accomplish that by sending private messages (PMs) to our users.</p>
+
+                    <p>We’ll use the “compose” API endpoint to accomplish this. Compose lets us write and send private messages to other users on Reddit. Unlike fetching threads, this endpoint requires us to POST instead of GET. Even though we’re POSTing, however, we will still send all our data as URI parameters, except for the authentication token which is still sent in the header as always. Compose has several parameters, some optional and some required:</p>
+
+                    <strong>api_type</strong> (optional): Set this to "json" if you want JSON data back.
+                    <br>
+                    <strong>from_sr</strong> (optional): Indicates which subreddit the PM is being sent from. Not relevant for our purposes.
+                    <br>
+                    <strong>g-recaptcha-response</strong> (optional): If the bot's account is new and doesn't have much karma, Reddit will force it to solve a CAPTCHA. This is where the response goes.
+                    <br>
+                    <strong>subject</strong>: The subject field of the message. Max length is 100 characters.
+                    <br>
+                    <strong>text</strong>: The body of the message which can be <a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">formatted in markdown</a>. Note that although the API documentation doesn't say this, there is a max length for the text field as well. If you go above it, you'll get back an error when you try to POST to the API.
+                    <strong>to</strong>: The username of the recipient.
+                    <br>
+                    <strong>uh / X-Modhash-header</strong> (optional): This isn't required when using OAuth so don't worry about it.
+
+                    <p>Now let's see this call in action</p>
+
+                    <pre><code class="javascript">
+                    function alertUser(token, threads) {
+                        var subject = "New threads matching your query have been posted";
+                        var to = "RECIPIENT_USER";
+                        // Construct message with markdown
+                        var message = "";
+                        for (thread in threads) {
+                            message += "* [" + threads[thread]['title']+ "](" + threads[thread]['link']+ ")\n";
+                        }
+
+                        var builtURL = "https://oauth.reddit.com/api/compose";
+                        builtURL += "?api_type=json&subject=" + subject + "&to=" + to + "&text=" + message;
+
+                        var options = {
+                                        url: builtURL,
+                                        method: 'POST',
+                                        contentType: 'application/json',
+                                        headers: {
+                                            'User-Agent': YOUR_USER_AGENT,
+                                            'Authorization': 'bearer ' + token
+                                        },
+                                        body: "" 
+                                     };
+
+                        console.log("Trying to send request...");
+                        request(options, function(err, res, body) {
+                            // You can check for errors and success here
+                        });
+                    }
+                    </code></pre>
+
+                    <p>Walking through this code, we first set our subject to a standard subject line and set our recipient. Then we construct the message body using the array of processed thread data we created earlier along with a little markdown for prettier formatting. Next, we create the URL using the above pieces. Finally, we POST our request to send the message.</p>
+
+                    <p>That's it! The message has been sent and our user is now aware of new threads they're interested in without having to constantly check their favorite subreddit!</p>
+
+                    <div class="center">
+                        <a href="/tut1"><button type="button" class="btn btn-primary">Previous</button></a>
+                        <a href="/closing"><button type="button" class="btn btn-primary">Next</button></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <div class="container">Created by: Ryan Murray</div>
+        </footer>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+    </body>
+</html>

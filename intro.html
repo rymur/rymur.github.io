@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="utf-8">
+        <title>Reddit API How-To - Introduction</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/monokai.min.css">
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<!-- Navbar code borrowed heavily from https://getbootstrap.com/components/#navbar -->
+		<nav class="navbar navbar-inverse">
+			<div class="container">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false">
+					        <span class="sr-only">Toggle navigation</span>
+					        <span class="icon-bar"></span>
+					        <span class="icon-bar"></span>
+					        <span class="icon-bar"></span>
+					        </button>
+	  			        <a class="navbar-brand" href="/">Reddit API How-To</a>
+					</div>
+					<div class="collapse navbar-collapse">
+					<ul class="nav navbar-nav">
+						<li id="intro" class="active"><a href="/intro">Intro</a></li>
+						<li id="overview"><a href="/overview">Overview</a></li>
+						<li id="setup"><a href="/setup">Setup</a></li>
+						<li id="tut1"><a href="/tut1">Tutorial Part I</a></li>
+						<li id="tut2"><a href="/tut2">Tutorial Part II</a></li>
+						<li id="closing"><a href="/closing">Closing</a></li>
+					</ul>
+					</div>
+				</div>
+			</div>
+		</nav>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2">
+					<h1>Introduction</h1>
+
+					<h2>What is an API?</h2>
+
+					<p>An API ("application programming interface") is nothing new if you're a programmer. You've been using them any time you call a function or class from a codebase you didn't write. Another programmer wrote some useful code and provided you with nothing more than instructions on how to call that code. You know nothing about how it's implemented and you don't need to in order to use it. All you need to know is what goes in and what comes out.</p> 
+
+					<p>A web API is very similar. A website or service exposes an "endpoint" which you can think of as a function you can call. You call that endpoint by sending an HTTP request (usually GET or POST) to its URL. The endpoint will then process your request and do something with it, usually by sending back data in the form of JSON or XML.</p>
+
+					<h2>What is Reddit?</h2>
+
+					<p>Reddit is one of the most popular social network platforms on the internet. It's essentially an internet forum where each board is called a "subreddit". Users can create their own subreddits which has allowed Reddit to provide dedicated discussion to an extremely large plethora of interests, both mainstream and niche. Users are also able to create posts, comments, like and dislike others' posted content, and send private messages to other users.</p>
+
+					<h2>The Reddit API</h2>
+
+					<p>The Reddit API allows programmatic control of virtually every function a user can perform on the site. This not only allows for apps that can completely recreate the site with a new interface, but also allows for the creation of bots that can expand site functionality.</p>
+
+					<p>In this guide I'll explain the concepts of the Reddit API, how to use it, and show you how to make a useful bot with the API.</p>
+
+					<div class="center">
+					    <a href="/overview"><button type="button" class="btn btn-primary">Next</button></a>
+					</div>
+				</div>
+			</div>
+		</div>
+        <footer>
+            <div class="container">Created by: Ryan Murray</div>
+        </footer>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+		<script>hljs.initHighlightingOnLoad();</script>
+	</body>
+</html>
