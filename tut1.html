@@ -83,12 +83,12 @@ request(options, function(err, res, body) {
 
                     <p>For better or for worse, we get an enormous amount of data back. For our purposes we don’t care about most of it, although you can refer to the Reddit object documentation <a href="https://github.com/reddit/reddit/wiki/JSON">here</a> to see what's returned. Assuming we’ve named our JSON response data “res” then the information for each thread object is located under res[‘data’][‘children’]. The first thread is at index [0] and continues to N - 1 where N is the number of threads requested. The details for each thread are located under the [‘data’] key. The data we’re interested in are the thread’s title, name (which is the fullname we’ll need for the before/after options on our subsequent request), and link. So to get the data we need:</p>
 
-                    <pre><code class="javascript">
-                    var res = JSON.parse(body);
-                    var fullname = res[‘data’][‘children’][0][‘data’][‘name’];
-                    var title = res[‘data’][‘children’][0][‘data’][‘title’];
-                    var link = res['data']['children'][0]['data']['title'];
-                    </code></pre>
+<pre><code class="javascript">
+var res = JSON.parse(body);
+var fullname = res[‘data’][‘children’][0][‘data’][‘name’];
+var title = res[‘data’][‘children’][0][‘data’][‘title’];
+var link = res['data']['children'][0]['data']['title'];
+</code></pre>
 
                     <p>Of course, we want to examine more than just one thread, we want to look at all the new threads. So to do that we’ll loop over the JSON data and put it into a dictionary:</p>
 
